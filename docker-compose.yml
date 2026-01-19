@@ -1,0 +1,50 @@
+services:
+  # dev, prod
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my-project-app
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3000}
+    volumes:
+      - ./src:/app/src
+      - ./package.json:/app/package.json
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-3000}/hello"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # test
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: my-project-test
+    environment:
+      NODE_ENV: test
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./package.json:/app/package.json
+      - ./jest.config.js:/app/jest.config.js
+    command: npm run test
+
+  # ESLint
+  lint:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: my-project-lint
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./eslint.config.mjs:/app/eslint.config.mjs
+      - ./package.json:/app/package.json
+    command: npm run lint
