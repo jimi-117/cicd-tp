@@ -1,0 +1,27 @@
+name: node.js CI
+
+on:
+    push:
+        branches: [master, sho-gha]
+    pull_request:
+        branches: [master]
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v6
+            - name: Setup node.js
+              uses: actions/setup-node@v5
+              with:
+                node-version-file: .nvmrc
+            - name: Install depdandencies
+              run: npm ci
+            - name: Linting
+              run: npm run lint
+
+            - name: Test
+              run: npm test
+
