@@ -12,15 +12,16 @@ FROM node:22.19.0-alpine
 
 WORKDIR /app
 
-# Change user
-USER 65532
-
-# Copy node_modules from builder
+# Copy node_modules from builder as root
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy source code
 COPY src ./src
 COPY package*.json ./
+
+# Fix ownership and change user
+RUN chown -R 65532:65532 /app
+USER 65532
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
