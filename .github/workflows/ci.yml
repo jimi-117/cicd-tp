@@ -44,4 +44,4 @@ jobs:
           name: Test Results
           artifact: test-results
           path: "test-results/*.xml"
-          reporter: junit
+          reporter: java-junit
