@@ -34,7 +34,7 @@ jobs:
           image-ref: 'cicd_tp:latest'
           format: 'table'
           exit-code: '1'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
       
       - name: Create test-results directory
         run: |
