@@ -4,7 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: my-project-app
+    image: cicd_tp:latest
+    container_name: cicd_tp
     ports:
       - "${PORT:-3000}:${PORT:-3000}"
     environment:
@@ -15,7 +16,7 @@ services:
       - ./package.json:/app/package.json
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-3000}/hello"]
+      test: ["CMD", "wget", "--no-verbose", "--spider", "http://localhost:${PORT:3000}/hello"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -26,7 +27,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
-    container_name: my-project-test
+    image: cicd_tp-test:latest
+    container_name: cicd_tp-test
     environment:
       NODE_ENV: test
       JEST_JUNIT_OUTPUT: /app/test-results/junit.xml

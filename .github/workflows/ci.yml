@@ -13,12 +13,28 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      
+      - name: Security scan - check for secrets
+        uses: gitleaks/gitleaks-action@v2
+      
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker images
         run: docker compose build --parallel
+
+      - name: Security scan by Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'cicd_tp:latest'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL, HIGH'
 
       - name: Run tests in Docker
         run: docker compose run --rm test
