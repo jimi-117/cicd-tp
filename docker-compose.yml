@@ -29,8 +29,10 @@ services:
     container_name: my-project-test
     environment:
       NODE_ENV: test
+      JEST_JUNIT_OUTPUT: /app/test-results/junit.xml
     volumes:
       - ./src:/app/src
+      - ./test-results:/app/test-results
       - ./tests:/app/tests
       - ./package.json:/app/package.json
     command: npm run test

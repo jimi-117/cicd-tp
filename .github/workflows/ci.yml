@@ -1,35 +1,47 @@
-name: node.js CI
+name: Node.js CI
 
 on:
-    push:
-        branches: [master, sho-gha]
-    pull_request:
-        branches: [master]
+  push:
+    branches: [master, sho-gha]
+  pull_request:
+    branches: [master]
 
 jobs:
-    Checkout-and-Build-Docker:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v6
-            - name: Build Docker containers
-              run: docker compose up --abort-on-container-exit --build
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    Test-and-lint-Docker:
-        runs-on: ubuntu-latest
-        needs: Checkout-and-Build-Docker
-        steps:
-            - name: Run Docker tests
-              run: docker compose run test
-            - name: Run Docker lint
-              run: docker compose run lint
-    report:
-        runs-on: ubuntu-latest
-        needs: Test-and-lint-Docker
-        steps:
-            - name: Report job status
-              uses: dorny/test-reporter@v2
-              with:
-                artifact: test-results
-                path: "*.xml"
-                reporter: mocha-json
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker images
+        run: docker compose build --parallel
+
+      - name: Run tests in Docker
+        run: docker compose run --rm test
+
+      - name: Run lint in Docker
+        run: docker compose run --rm lint
+
+      - name: Tear down compose (cleanup)
+        if: always()
+        run: docker compose down --volumes --remove-orphans
+      
+      - name: Upload test results artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/*.xml
+
+      - name: Report test results
+        if: always()
+        uses: dorny/test-reporter@v2
+        with:
+          name: Test Results
+          artifact: test-results
+          path: "test-results/*.xml"
+          reporter: junit

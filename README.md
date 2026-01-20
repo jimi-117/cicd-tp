@@ -1,6 +1,72 @@
 # TP CI/CD
 
 A Node.js application providing a simple greeting service with a REST API. It includes a server built with Express, greeting logic, and comprehensive test
+## Overview
+
+- Runtime: Node.js (engine >= 22.19.0)
+- Frameworks/libraries: `express`, `axios`, `supertest`
+## Architecture
+
+- `src/greeting.js`: Pure function `getGreeting(name)` that returns the greeting string. Behavior:
+  - When `name` is truthy (non-empty string), returns `Hello world! From <name>`.
+  - For falsy values (undefined, null, `""`, `0`), it returns `Hello world!`.
+- `src/server.js`: Express app exposing two routes and exported as `module.exports = app` so tests can mount it directly. When run as a process it listens on `process.env.PORT || 3000`.
+- Tests:
+  - Unit tests: `tests/unit` — exercise `getGreeting` behavior.
+- Docker & CI: `Dockerfile`, `Dockerfile.test`, `docker-compose.yml` and `.github/workflows/ci.yml` build containers, run tests and lint in CI.
+
+## Endpoints
+All endpoints return a `200` status and a plain-text response body containing the greeting.
+
+- `GET /hello`  
+  - Response: `Hello world!`
+- `GET /hello/:name`  
+  - Path param: `name` (URL-decoded).  
+  - Example: `GET /hello/Alice` => `Hello world! From Alice`  
+- `POST /hello`  
+  - Reads header `x-name`. If present and non-empty, returns `Hello world! From <value>`. Otherwise returns `Hello world!`.
+  - Example header: `x-name: Bob` => `Hello world! From Bob`
+Notes on error/edge handling:
+- The current implementation treats falsy values (`null`, `undefined`, empty string, `0`) as "no name" except when a path parameter is provided — path parameters are strings derived from the URL and `"0"` is a valid name. Tests have been added to cover these cases.
+
+## Running locally
+## Testing & Linting
+
+Run all tests:
+
+```bash
+Run subsets:
+
+```bash
+npm test -- tests/unit/
+npm test -- tests/integration/
+npm test -- tests/e2e/
+```
+
+Linting:
+## Docker & CI
+
+- CI: See `.github/workflows/ci.yml` — the workflow builds containers with `docker compose up --build`, runs tests and lint inside containers, and publishes test artifacts.
+- Local compose usage: `docker compose up --build` will build and run the defined services (see `docker-compose.yml`).
+
+## Project structure
+- `src/` — application code (`greeting.js`, `server.js`)
+- `tests/unit/`, `tests/integration/`, `tests/e2e/` — test suites
+- `Dockerfile`, `Dockerfile.test`, `docker-compose.yml` — container setup
+- `.github/workflows/ci.yml` — CI pipeline
+- `package.json` — scripts and dependencies
+
+## Contributing
+1. Fork the repo
+2. Create a feature branch
+3. Run tests and linting
+4. Submit a pull request
+
+---
+Updated: expanded architecture and endpoint documentation.
+# TP CI/CD
+
+A Node.js application providing a simple greeting service with a REST API. It includes a server built with Express, greeting logic, and comprehensive test
 suites (unit, integration, and end-to-end).
 
 ## Features
