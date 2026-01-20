@@ -16,7 +16,7 @@ services:
       - ./package.json:/app/package.json
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--spider", "http://localhost:${PORT:3000}/hello"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:${PORT:-3000}/hello', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
       interval: 30s
       timeout: 10s
       retries: 3
