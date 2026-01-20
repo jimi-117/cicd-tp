@@ -37,7 +37,9 @@ jobs:
           severity: 'CRITICAL,HIGH'
       
       - name: Create test-results directory
-        run: mkdir -p test-results
+        run: |
+          mkdir -p test-results
+          chmod 777 test-results
 
       - name: Run tests in Docker
         run: docker compose run --rm test
@@ -54,7 +56,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: test-results/*.xml
+          path: test-results/
 
       - name: Report test results
         if: always()
