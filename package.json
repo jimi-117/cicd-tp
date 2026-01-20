@@ -27,5 +27,9 @@
     "tests/unit/greeting.test.js",
     "tests/integration/app.integration.test.js",
     "tests/e2e/e2e.test.js"
-  ]
+  ],
+  "overrides": {
+  "glob": "^10.5.0",
+  "tar": "^7.5.3"
+  }
 }
