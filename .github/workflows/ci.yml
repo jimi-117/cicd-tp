@@ -54,7 +54,7 @@ jobs:
       
       - name: Test report
         uses: dorny/test-reporter@v2
-        if: ${{ !canceled() }}
+        if: ${{ !cancelled() }}
         with:
           name: JEST Tests
           path: test-results/*.xml
