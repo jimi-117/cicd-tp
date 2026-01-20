@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install deps
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Prod stage
 FROM node:22.19.0-alpine
