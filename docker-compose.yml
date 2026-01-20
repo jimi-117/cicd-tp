@@ -37,6 +37,7 @@ services:
       - ./test-results:/app/test-results
       - ./tests:/app/tests
       - ./package.json:/app/package.json
+      - ./jest.config.js:/app/jest.config.js
     command: npm run test
 
   # ESLint

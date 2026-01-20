@@ -63,6 +63,5 @@ jobs:
         uses: dorny/test-reporter@v2
         with:
           name: Test Results
-          artifact: test-results
           path: "test-results/*.xml"
           reporter: java-junit
