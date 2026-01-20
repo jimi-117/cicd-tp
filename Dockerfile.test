@@ -13,6 +13,6 @@ ENV NODE_ENV=test
 # Copy source code
 COPY src ./src
 COPY tests ./tests
-COPY eslint.config.mjs .eslintrc.js ./
+COPY eslint.config.mjs ./
 
 CMD ["npm", "run", "test"]
