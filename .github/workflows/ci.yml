@@ -29,12 +29,16 @@ jobs:
         run: docker compose build --parallel
 
       - name: Security scan by Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: 'cicd_tp:latest'
           format: 'table'
+          scanners: 'vuln'
           exit-code: '1'
-          severity: 'CRITICAL, HIGH'
+          severity: 'CRITICAL,HIGH'
+      
+      - name: Create test-results directory
+        run: mkdir -p test-results
 
       - name: Run tests in Docker
         run: docker compose run --rm test
