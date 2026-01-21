@@ -7,9 +7,11 @@ on:
     branches: [master]
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   checks: write
+  pages: write
+  id-token: write
 
 jobs:
   build-and-test:
@@ -51,7 +53,7 @@ jobs:
 
       - name: Run lint in Docker
         run: docker compose run --rm lint
-      
+
       - name: Test report
         uses: dorny/test-reporter@v2
         if: ${{ !cancelled() }}
@@ -60,6 +62,21 @@ jobs:
           path: test-results/*.xml
           reporter: jest-junit
 
+      - name: Generate Allure Report
+        if: always()
+        uses: simple-elf/allure-report-action@master
+        with:
+          allure_results: allure-results
+          allure_history: allure-history
+          keep_reports: 20
+
+      - name: Deploy to GitHub Pages
+        if: always() && github.ref == 'refs/heads/sho-gha'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-history
+          publish_branch: gh-pages
 
       - name: Tear down compose (cleanup)
         if: always()

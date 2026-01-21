@@ -5,6 +5,9 @@ module.exports = {
         ['jest-junit', {
             outputDirectory: './test-results',
             outputName: 'junit.xml',
+        }],
+        ['jest-allure', {
+            outputDirectory: './allure-results'
         }]
     ]
 };
