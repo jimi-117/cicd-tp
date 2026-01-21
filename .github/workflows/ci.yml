@@ -55,6 +55,10 @@ jobs:
 
       - name: Run tests in Docker
         run: docker compose run --rm test
+      
+      - name: Fix permissions for test results
+        if: always()
+        run: sudo chown -R $USER:$USER test-results
 
       - name: Run lint in Docker
         run: docker compose run --rm lint
