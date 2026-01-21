@@ -2,14 +2,17 @@ name: Node.js CI
 
 on:
   push:
-    branches: [master, sho-gha]
+    branches: [master, sho-gha, '#*']
   pull_request:
-    branches: [master]
+    branches: [master, sho-gha]
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   checks: write
+  pages: write
+  id-token: write
+  pull-requests: write
 
 jobs:
   build-and-test:
@@ -18,9 +21,13 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Security scan - check for secrets
         uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Lint Dockerfile
         uses: hadolint/hadolint-action@v3.1.0
@@ -51,7 +58,7 @@ jobs:
 
       - name: Run lint in Docker
         run: docker compose run --rm lint
-      
+
       - name: Test report
         uses: dorny/test-reporter@v2
         if: ${{ !cancelled() }}
@@ -60,6 +67,36 @@ jobs:
           path: test-results/*.xml
           reporter: jest-junit
 
+      - name: Generate Allure Report
+        if: always()
+        uses: simple-elf/allure-report-action@master
+        with:
+          allure_results: allure-results
+          allure_history: allure-history
+          keep_reports: 20
+
+      - name: Deploy to GitHub Pages
+        if: always() && github.ref == 'refs/heads/sho-gha'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-history
+          publish_branch: gh-pages
+
+      - name: Comment PR with Allure Report Link
+        if: always() && github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          comment_tag: allure-report
+          mode: upsert
+          message: |
+            ### 📊 Allure Test Report (Build #${{ github.run_number }})
+            | Item | Status |
+            | :--- | :--- |
+            | **Result** | ${{ job.status == 'success' && '✅ Passed' || '❌ Failed' }} |
+            | **Report URL** | [View Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ github.run_number }}) |
+            
+            _Last updated at: $(date +'%Y-%m-%d %H:%M:%S')_
 
       - name: Tear down compose (cleanup)
         if: always()
